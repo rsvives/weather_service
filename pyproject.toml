@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Weather Service API using FastAPI and NASA Earthdata"
 authors = ["RSerran"]
 readme = "README.md"
-packages = [{include = "fastapi_render"}]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
