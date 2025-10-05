@@ -1,6 +1,6 @@
 .netrc
 .env
-
+__pycache__/
 nasa_data/
 initial_tests/
 
