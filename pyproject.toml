@@ -15,6 +15,7 @@ earthaccess = "^0.15.1"
 numpy = "^2.3.3"
 pandas = "^2.3.3"
 dotenv = "^0.9.9"
+pydantic = "^2.11.10"
 
 
 
