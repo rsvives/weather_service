@@ -16,6 +16,8 @@ numpy = "^2.3.3"
 pandas = "^2.3.3"
 dotenv = "^0.9.9"
 pydantic = "^2.11.10"
+bcrypt = "^4.1.2"
+pyjwt = "^2.10.1"
 
 
 
