@@ -12,7 +12,8 @@ import jwt
 app = FastAPI(title="Weather Analysis Microservice")
 security = HTTPBearer()
 
-config = dotenv.dotenv_values(".env")
+# config = dotenv.dotenv_values(".env")
+dotenv.load_dotenv()
 # security = HTTPBearer()
 
 # # Token hash almacenado (en producción, usar variable de entorno)
