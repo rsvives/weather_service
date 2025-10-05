@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "weather-service"
+version = "0.1.0"
+description = "Weather Service API using FastAPI and NASA Earthdata"
+authors = ["RSerran"]
+readme = "README.md"
+packages = [{include = "weather_service"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.2"
+uvicorn = "^0.29.0"
+xarray = "^2025.9.1"
+earthaccess = "^0.15.1"
+numpy = "^2.3.3"
+pandas = "^2.3.3"
+dotenv = "^0.9.9"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
