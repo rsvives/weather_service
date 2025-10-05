@@ -32,8 +32,8 @@ config = dotenv.dotenv_values(".env")
 
 
 
-JWT_SECRET = config["JWT_SECRET"]
-JWT_PASSWORD = config["JWT_PASSWORD"]
+JWT_SECRET = os.environ.get("JWT_SECRET")
+JWT_PASSWORD = os.environ.get("JWT_PASSWORD")
 JWT_ALGORITHM = "HS256"
 
 # Función de dependencia para verificar JWT
@@ -43,7 +43,7 @@ async def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(securit
     try:
         # Verificar y decodificar el JWT
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        print(payload)
+        # print(payload)
         if "secret" not in payload or payload.get("secret") != JWT_PASSWORD:
             raise HTTPException(status_code=403, detail="Token inválido")
         else:
