@@ -32,31 +32,21 @@ class WeatherCheck(BaseModel):
     start_day: int
     end_day: int
 
+class WeatherResponse(BaseModel):
+    meanTemp: list
+    maxTemp: list
+    minTemp: list
+    rain: dict
+    location: dict
+    dateRange: str
+    year: int
+
 @app.post("/weather_check")
 async def weather_check(
     weather_check: WeatherCheck
-):
-    """Endpoint para recibir parámetros de consulta meteorológica"""
-    lat = weather_check.lat
-    lon = weather_check.lon
-    radius = weather_check.radius
-    year = weather_check.year
-    month = weather_check.month
-    start_day = weather_check.start_day
-    end_day = weather_check.end_day
+) -> WeatherResponse:
+    return get_weather_data(weather_check.lat, weather_check.lon, weather_check.radius, weather_check.year, weather_check.month, weather_check.start_day, weather_check.end_day)
 
-    return {
-        "location": {
-            "lat": lat,
-            "lon": lon,
-            "radius": radius
-        },
-        "date_range": {
-            "year": year,
-            "month": month,
-            "start_day": start_day,
-            "end_day": end_day
-        }
-    }
+
 
 
