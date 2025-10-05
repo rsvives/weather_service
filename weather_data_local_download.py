@@ -43,6 +43,9 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
     # Asegurar autenticación
     _ensure_auth()
 
+    start_year = 2015
+    end_year = year
+
     # Inicializar estructura de datos
     output_data = {
         "meanTemp": [],
