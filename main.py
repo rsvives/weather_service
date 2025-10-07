@@ -10,6 +10,23 @@ import jwt
 # import bcrypt
 
 app = FastAPI(title="Weather Analysis Microservice")
+
+# Configurar CORS para permitir peticiones desde el frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        # "http://localhost:5173",  # Vite dev server
+        # "http://127.0.0.1:5174",
+        # "http://localhost:3000",  # React dev server (alternativo)
+        # "http://127.0.0.1:3000",
+        # "http://192.168.1.149:5173"
+        "https://orbayu-frontend.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 security = HTTPBearer()
 
 # config = dotenv.dotenv_values(".env")
@@ -77,24 +94,22 @@ class WeatherCheck(BaseModel):
     lat: float
     lon: float
     radius: int
-    year: int
-    month: int
-    start_day: int
-    end_day: int
+    start_date: str
+    end_date: str
 
 class WeatherResponse(BaseModel):
-    meanTemp: list
-    maxTemp: list
-    minTemp: list
-    rain: dict
+    temps:list
+    # meanTemp: list
+    # maxTemp: list
+    # minTemp: list
+    rain: list
     location: dict
-    dateRange: str
-    year: int
+   
 
 @app.post("/weather_check")
 async def weather_check(
     weather_check: WeatherCheck,
     token: str = Depends(verify_jwt)
 ) -> WeatherResponse:
-    return get_weather_data(weather_check.lat, weather_check.lon, weather_check.radius, weather_check.year, weather_check.month, weather_check.start_day, weather_check.end_day)
+    return get_weather_data(weather_check.lat, weather_check.lon, weather_check.radius, weather_check.start_date, weather_check.end_date)
 
