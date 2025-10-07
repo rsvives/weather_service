@@ -1,3 +1,4 @@
+from datetime import datetime
 import earthaccess
 import dotenv
 import xarray as xr
@@ -24,7 +25,7 @@ nasa_status = earthaccess.status()
 print(nasa_status)
 
 
-def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int, start_day: int, end_day: int):
+def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_date:str):
     """
     Obtiene datos meteorológicos históricos de NASA Earthdata para una ubicación y rango de fechas específicos.
     
@@ -32,11 +33,11 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
         lat: Latitud del punto objetivo
         lon: Longitud del punto objetivo
         radius: Radio de búsqueda en metros
-        year: Año para la consulta
-        month: Mes para la consulta
+
         start_day: Día de inicio del rango
         end_day: Día de fin del rango
     
+
     Returns:
         dict: Datos meteorológicos estructurados con temperaturas y precipitación
     """
@@ -44,23 +45,32 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
     _ensure_auth()
 
     start_year = 2015
-    end_year = year
+    end_year = 2025
+
+    start_date_dt = datetime.strptime(start_date, "%d/%m/%Y, %H:%M:%S")
+    end_date_dt = datetime.strptime(end_date, "%d/%m/%Y, %H:%M:%S")
+    start_month = start_date_dt.month
+    end_month = end_date_dt.month
+    start_day = start_date_dt.day
+    end_day = end_date_dt.day
+
 
     # Inicializar estructura de datos
     output_data = {
-        "meanTemp": [],
-        "maxTemp": [],
-        "minTemp": [],
-        "rain": {
-            "quantity": [],
-            "hours": []
-        },
+        "temps": [],
+        # "meanTemp": [],
+        # "maxTemp": [],
+        # "minTemp": [],
+        "rain":[],
+        # "rain": {
+        #     "quantity": [],
+        #     "hours": []
+        # },
         "location": {
                 "lat": lat,
                 "lon": lon
         },
-            "dateRange": f"{year}-{month:02d}-{start_day:02d} to {year}-{month:02d}-{end_day:02d}",
-            "year": year
+            # "dateRange": f"{year}-{month:02d}-{start_day:02d} to {year}-{month:02d}-{end_day:02d}",
     }
 
     # Hacer búsqueda para todos los años
@@ -69,7 +79,7 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
         print(f"Searching year {year}...")
         results = earthaccess.search_data(
             short_name=('M2SDNXSLV'),
-            temporal=(f"{year}-{month:02d}-{start_day:02d} 00:00:00", f"{year}-{month:02d}-{end_day:02d} 23:59:59"),
+            temporal=(f"{year}-{start_month:02d}-{start_day:02d} 00:00:00", f"{year}-{end_month:02d}-{end_day:02d} 23:59:59"),
             cloud_hosted=True,
             circle=(lat, lon, radius),
         )
@@ -84,8 +94,9 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
     # Verificar si ya existen archivos descargados correspondientes a las fechas específicas
     existing_files = []
     for year in range(start_year, end_year + 1):
-        for days in range(start_day, end_day + 1):
-            existing_files.extend(glob.glob(os.path.join(data_dir, f'*.{year}{month}{days:02d}.nc4')))
+        for month in range(start_month, end_month + 1):
+            for days in range(start_day, end_day + 1):
+                existing_files.extend(glob.glob(os.path.join(data_dir, f'*.{year}{month}{days:02d}.nc4')))
 
     print(existing_files)
     print(len(existing_files))
@@ -116,9 +127,9 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
 
     for year in range(start_year, end_year + 1):
         print(f"Processing year {year}...")
-        
-        # Filtrar datos de septiembre 10-14 de este año específico
-        year_data = ds_point.sel(time=slice(f'{year}-{month}-{start_day:02d}', f'{year}-{month}-{end_day:02d}'))
+        for month in range(start_month, end_month + 1):
+            # Filtrar datos de septiembre 10-14 de este año específico
+            year_data = ds_point.sel(time=slice(f'{year}-{month}-{start_day:02d}', f'{year}-{month}-{end_day:02d}'))
         
         if len(year_data['time']) == 0:
             print(f"No data found for {year}")
@@ -130,20 +141,23 @@ def get_weather_data(lat: float, lon: float, radius: int, year: int, month: int,
             continue
         
         # Extraer datos (convertir temperaturas a Celsius)
-        mean_temps = (year_data['T2MMEAN'].values - 273.15).tolist()
-        max_temps = (year_data['T2MMAX'].values - 273.15).tolist()
-        min_temps = (year_data['T2MMIN'].values - 273.15).tolist()
+        temps =dict(year=year,mean_temps=(year_data['T2MMEAN'].values - 273.15).tolist(),max_temps=(year_data['T2MMAX'].values - 273.15).tolist(),min_temps=(year_data['T2MMIN'].values - 273.15).tolist()) 
+        # max_temps = dict(year=year,data=)
+        # min_temps = dict(year=year,data=)
         rain_quantity = year_data['TPRECMAX'].values.tolist()
         rain_hours = (24 - year_data['HOURNORAIN'].values/3600).tolist()  # data is in seconds + is NO rain hours so it has been converted to hours of rain
+        rain = dict(year=year,quantity=rain_quantity,hours=rain_hours)
         
         # Añadir datos de este año
-        output_data["meanTemp"].append(mean_temps)
-        output_data["maxTemp"].append(max_temps)
-        output_data["minTemp"].append(min_temps)
-        output_data["rain"]["quantity"].append(rain_quantity)
-        output_data["rain"]["hours"].append(rain_hours)
+        output_data["temps"].append(temps)
+        output_data["rain"].append(rain)
+        # output_data["meanTemp"].append(mean_temps)
+        # output_data["maxTemp"].append(max_temps)
+        # output_data["minTemp"].append(min_temps)
+        # output_data["rain"]["quantity"].append(rain_quantity)
+        # output_data["rain"]["hours"].append(rain_hours)
         
-        print(f"Year {year} completed: {len(mean_temps)} days of data")
+        print(f"Year {year} completed: {len(temps)} days of data")
 
     # Cerrar dataset
     ds.close()
