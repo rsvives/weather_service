@@ -145,8 +145,10 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
         # max_temps = dict(year=year,data=)
         # min_temps = dict(year=year,data=)
         rain_quantity = year_data['TPRECMAX'].values.tolist()
-        rain_hours = (24 - year_data['HOURNORAIN'].values/3600).tolist()  # data is in seconds + is NO rain hours so it has been converted to hours of rain
+        rain_hours = ((year_data['HOURNORAIN'].values/(24*60*60))).tolist()  # data is in seconds + is NO rain hours so it has been converted to hours of rain
         rain = dict(year=year,quantity=rain_quantity,hours=rain_hours)
+        print(rain_quantity)
+        print(rain_hours)
         
         # Añadir datos de este año
         output_data["temps"].append(temps)
