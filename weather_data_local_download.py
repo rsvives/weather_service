@@ -96,7 +96,7 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
     for year in range(start_year, end_year + 1):
         for month in range(start_month, end_month + 1):
             for days in range(start_day, end_day + 1):
-                existing_files.extend(glob.glob(os.path.join(data_dir, f'*.{year}{month}{days:02d}.nc4')))
+                existing_files.extend(glob.glob(os.path.join(data_dir, f'*.{year}{month:02d}{days:02d}.nc4')))
 
     print(existing_files)
     print(len(existing_files))
