@@ -1,6 +1,7 @@
 from datetime import datetime
 import earthaccess
 import dotenv
+from fastapi import HTTPException
 import xarray as xr
 # import json
 import numpy as np
@@ -75,17 +76,26 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
 
     # Hacer búsqueda para todos los años
     all_results = []
-    for year in range(start_year, end_year + 1):
-        print(f"Searching year {year}...")
-        results = earthaccess.search_data(
-            short_name=('M2SDNXSLV'),
-            temporal=(f"{year}-{start_month:02d}-{start_day:02d} 00:00:00", f"{year}-{end_month:02d}-{end_day:02d} 23:59:59"),
-            cloud_hosted=True,
-            circle=(lat, lon, radius),
+    try:
+        for year in range(start_year, end_year + 1):
+            print(f"Searching year {year}...")
+            results = earthaccess.search_data(
+                short_name=('M2SDNXSLV'),
+                temporal=(f"{year}-{start_month:02d}-{start_day:02d} 00:00:00", f"{year}-{end_month:02d}-{end_day:02d} 23:59:59"),
+                cloud_hosted=True,
+                circle=(lat, lon, radius),
         )
-        all_results.extend(results)
+            all_results.extend(results)
 
-    print(f"Found {len(all_results)} total granules")
+        print(f"Found {len(all_results)} total granules")
+    except RuntimeError as e:
+        print(f"Error searching data:")
+        error_msg = str(e)
+        print(error_msg)
+        if("be within -90 and 90.0" in error_msg):
+            raise Exception("Latitude must be between -90 and 90")
+        else:
+            raise Exception("Unknown error searching data")
 
     # Crear directorio para datos locales
     data_dir = './nasa_data'

@@ -111,5 +111,10 @@ async def weather_check(
     weather_check: WeatherCheck,
     token: str = Depends(verify_jwt)
 ) -> WeatherResponse:
-    return get_weather_data(weather_check.lat, weather_check.lon, weather_check.radius, weather_check.start_date, weather_check.end_date)
+    try:
+        return get_weather_data(weather_check.lat, weather_check.lon, weather_check.radius, weather_check.start_date, weather_check.end_date)
+    except Exception as e:
+        print(e)
+        error_msg = str(e)
+        raise HTTPException(status_code=500, detail=error_msg)
 
