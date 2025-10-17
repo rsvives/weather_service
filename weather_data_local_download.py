@@ -46,7 +46,7 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
     _ensure_auth()
 
     start_year = 2015
-    end_year = 2025
+    end_year = 2024
 
     start_date_dt = datetime.strptime(start_date, "%d/%m/%Y, %H:%M:%S")
     end_date_dt = datetime.strptime(end_date, "%d/%m/%Y, %H:%M:%S")
@@ -116,7 +116,7 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
         print("Using local files...")
         downloaded_files = sorted(existing_files)
     else:
-        print(f"No local files found. Fetching data from {start_year} to {end_year} for September {start_day}-{end_day}...")
+        print(f"No local files found. Fetching data from {start_year} to {end_year} for {start_day}/{start_month} to {end_day}/{end_month}...")
         
         # Descargar archivos localmente
         print("Downloading files to local storage...")
@@ -143,9 +143,10 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
         
         if len(year_data['time']) == 0:
             print(f"No data found for {year}")
-            output_data["meanTemp"].append([])
-            output_data["maxTemp"].append([])
-            output_data["minTemp"].append([])
+            # output_data["meanTemp"].append([])
+            # output_data["maxTemp"].append([])
+            # output_data["minTemp"].append([])
+            output_data["temps"].append([])
             output_data["rain"]["quantity"].append([])
             output_data["rain"]["hours"].append([])
             continue
@@ -154,11 +155,14 @@ def get_weather_data(lat: float, lon: float, radius: int, start_date: str, end_d
         temps =dict(year=year,mean_temps=(year_data['T2MMEAN'].values - 273.15).tolist(),max_temps=(year_data['T2MMAX'].values - 273.15).tolist(),min_temps=(year_data['T2MMIN'].values - 273.15).tolist()) 
         # max_temps = dict(year=year,data=)
         # min_temps = dict(year=year,data=)
+        print('hour no rain:')
+        print(year_data['HOURNORAIN']) 
+        print(year_data['HOURNORAIN'].values)
         rain_quantity = year_data['TPRECMAX'].values.tolist()
-        rain_hours = ((year_data['HOURNORAIN'].values/(24*60*60))).tolist()  # data is in seconds + is NO rain hours so it has been converted to hours of rain
+        rain_hours = ((year_data['HOURNORAIN'].values/(60*60))).tolist()  # data is in seconds + is NO rain hours so it has been converted to hours of rain
         rain = dict(year=year,quantity=rain_quantity,hours=rain_hours)
-        print(rain_quantity)
-        print(rain_hours)
+        # print(rain_hours)
+        # print(rain_quantity)
         
         # Añadir datos de este año
         output_data["temps"].append(temps)
