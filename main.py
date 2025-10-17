@@ -21,6 +21,7 @@ app.add_middleware(
         # "http://127.0.0.1:3000",
         "http://192.168.1.149:5173",
         "https://orbayu-frontend.vercel.app",
+        "https://monzoon.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
